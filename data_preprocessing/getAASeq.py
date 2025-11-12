@@ -1,6 +1,6 @@
 import requests
 
-pdb_id = "1A3A"
+pdb_id = "1h2e"
 
 url = f"https://files.rcsb.org/download/{pdb_id}.pdb"
 filePDB = requests.get(url).text.splitlines()
@@ -48,3 +48,23 @@ def three_to_one_amino_acid_code(three_letter_code):
 
 result = convert_to_single(seq)
 print(result)
+
+def apply_mutations(seq, muts):
+    # seq: str mit 1-basiertem Index (biologische Konvention)
+    # muts: z.B. "A123V" oder Liste ["K31G","I102W"]
+    if isinstance(muts, str):
+        muts = [muts]
+    seq_list = list(seq)
+    for m in muts:
+        ref = m[0]
+        pos = int(m[1:-1])
+        alt = m[-1]
+        if seq_list[pos-1] != ref:
+            raise ValueError(f"Ref-Mismatch an {pos}: erwartet {ref}, gefunden {seq_list[pos-1]}")
+        seq_list[pos-1] = alt
+    return "".join(seq_list)
+
+
+# Beispiel
+mut = apply_mutations(result, ["I147H","E184Y","D197M"])
+print(mut)
