@@ -65,6 +65,5 @@ def apply_mutations(seq, muts):
     return "".join(seq_list)
 
 
-# Beispiel
 mut = apply_mutations(result, ["I147H","E184Y","D197M"])
 print(mut)
