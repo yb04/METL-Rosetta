@@ -49,3 +49,22 @@ def three_to_one_amino_acid_code(three_letter_code):
     upper_code = three_letter_code.upper()
     one_letter_code = mapping.get(upper_code, '?')
     return one_letter_code
+
+def apply_mutations(seq, muts):
+    # seq: str mit 1-basiertem Index (biologische Konvention)
+    # muts: z.B. "A123V" oder Liste ["K31G","I102W"]
+    if isinstance(muts, str):
+        muts = [muts]
+    seq_list = list(seq)
+    for m in muts:
+        ref = m[0]
+        pos = int(m[1:-1])
+        alt = m[-1]
+        if seq_list[pos-1] != ref:
+            raise ValueError(f"Ref-Mismatch an {pos}: erwartet {ref}, gefunden {seq_list[pos-1]}")
+        seq_list[pos-1] = alt
+    return "".join(seq_list)
+
+
+mut = apply_mutations(get_AA(), ["I147H","E184Y","D197M"])
+print(mut)
