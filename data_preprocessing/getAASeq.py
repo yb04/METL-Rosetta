@@ -50,6 +50,7 @@ def three_to_one_amino_acid_code(three_letter_code):
     one_letter_code = mapping.get(upper_code, '?')
     return one_letter_code
 
+
 def apply_mutations(seq, muts):
     # seq: str mit 1-basiertem Index (biologische Konvention)
     # muts: z.B. "A123V" oder Liste ["K31G","I102W"]
