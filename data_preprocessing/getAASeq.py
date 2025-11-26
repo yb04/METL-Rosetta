@@ -3,8 +3,9 @@ import pandas as pd
 
 pdb_id = "1A3A"
 
-def get_AA(pdbId):
-    url = f"https://files.rcsb.org/download/{pdbId}.pdb"
+
+def get_AA(pdb_id):
+    url = f"https://files.rcsb.org/download/{pdb_id}.pdb"
     filePDB = requests.get(url).text.splitlines()
     seq = []
     for line in filePDB:
@@ -14,6 +15,7 @@ def get_AA(pdbId):
     result = convert_to_single(seq)
     return result
 
+
 def convert_to_single(seqeunce):
     bitch = []
     for entry in seqeunce:
@@ -22,6 +24,7 @@ def convert_to_single(seqeunce):
             bitch.append(three_to_one_amino_acid_code(part))
     string = "".join(bitch)
     return string
+
 
 def three_to_one_amino_acid_code(three_letter_code):
     mapping = {
@@ -47,7 +50,7 @@ def three_to_one_amino_acid_code(three_letter_code):
         'VAL': 'V'
     }
     upper_code = three_letter_code.upper()
-    one_letter_code = mapping.get(upper_code, '?')
+    one_letter_code = mapping.get(upper_code, 'X')  # X für unbekannt
     return one_letter_code
 
 
@@ -66,6 +69,3 @@ def apply_mutations(seq, muts):
         seq_list[pos-1] = alt
     return "".join(seq_list)
 
-
-mut = apply_mutations(get_AA(), ["I147H","E184Y","D197M"])
-print(mut)
