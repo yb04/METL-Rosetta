@@ -6,6 +6,14 @@ from torch.utils.data import DataLoader
 from pytorch_lightning import LightningDataModule
 
 
+AA = "ACDEFGHIKLMNPQRSTVWY"
+AA_TO_IDX = {a: i for i, a in enumerate(AA)}
+
+def one_hot_encode(seq):
+    idxs = torch.tensor([AA_TO_IDX[x] for x in seq], dtype=torch.long)
+    return torch.nn.functional.one_hot(idxs, num_classes=len(AA)).float()
+
+
 class RosettaDataModule(LightningDataModule):
     def __init__(self,
                  parquet_path=None,
@@ -30,7 +38,7 @@ class RosettaDataModule(LightningDataModule):
             self.df = pq.read_table(self.parquet_path).to_pandas()
 
             if self.sample_from_groups is not None:
-                grouped = self.df.groupby("your_group_col")
+                grouped = self.df.groupby("pdb_fn")
                 # adapt for replace and n
                 self.df = grouped.sample(n=self.group_sample_n, replace=True, random_state=42).reset_index(drop=True)
 
@@ -39,9 +47,8 @@ class RosettaDataModule(LightningDataModule):
             val_mask = self.df[self.set_key] == "val"
             test_mask = self.df[self.set_key] == "test"
 
-            seqs = torch.Tensor(
-                self.df['sequence_key'].values)  # can just be a list of string ['SEQVENCE', 'SEVENCE', ...]
-            rosetta_scores = torch.Tensor(self.df['rosetta_scores'])  # [1,0.9,2, ...]
+            seqs = self.df['mutated Sequence'].tolist()
+            rosetta_scores = torch.Tensor(self.df['total_Score'])  # [1,0.9,2, ...]
 
             self.train_dataset = RosettaDataset(seqs[train_mask],
                                                 rosetta_scores[train_mask])
@@ -83,4 +90,7 @@ class RosettaDataset(Dataset):
         return len(self.seqs)
 
     def __getitem__(self, idx):
-        return self.seqs[idx], self.rosetta_scores[idx]
+        seq = self.seqs[idx]
+        x = one_hot_encode(seq)
+        y = self.rosetta_scores[idx]
+        return x, y
