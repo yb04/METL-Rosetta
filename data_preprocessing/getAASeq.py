@@ -27,31 +27,85 @@ def convert_to_single(seqeunce):
 
 
 def three_to_one_amino_acid_code(three_letter_code):
-    mapping = {
-        'ALA': 'A',
-        'ARG': 'R',
-        'ASN': 'N',
-        'ASP': 'D',
-        'CYS': 'C',
-        'GLU': 'E',
-        'GLN': 'Q',
-        'GLY': 'G',
-        'HIS': 'H',
-        'ILE': 'I',
-        'LEU': 'L',
-        'LYS': 'K',
-        'MET': 'M',
-        'PHE': 'F',
-        'PRO': 'P',
-        'SER': 'S',
-        'THR': 'T',
-        'TRP': 'W',
-        'TYR': 'Y',
-        'VAL': 'V'
+    AA_MAPPING = {
+        # Standard 20
+        "ALA": "A",
+        "ARG": "R",
+        "ASN": "N",
+        "ASP": "D",
+        "CYS": "C",
+        "GLU": "E",
+        "GLN": "Q",
+        "GLY": "G",
+        "HIS": "H",
+        "ILE": "I",
+        "LEU": "L",
+        "LYS": "K",
+        "MET": "M",
+        "PHE": "F",
+        "PRO": "P",
+        "SER": "S",
+        "THR": "T",
+        "TRP": "W",
+        "TYR": "Y",
+        "VAL": "V",
+
+        # Ambiguity codes (PDB-standard)
+        "ASX": "B",  # ASP or ASN
+        "GLX": "Z",  # GLU or GLN
+        "XLE": "J",  # LEU or ILE
+        "XAA": "X",  # unknown generic aa
+
+        # Rare natural amino acids
+        "SEC": "U",  # Selenocysteine
+        "PYL": "O",  # Pyrrolysine
+
+        # Extremely common PDB modifications
+        "MSE": "M",  # Selenomethionine -> treat as Met
+        "HYP": "P",  # Hydroxyproline -> Pro
+        "PCA": "E",  # Pyroglutamic acid -> Glu
+        "CSO": "C",  # S-hydroxycysteine -> Cys
+        "MLY": "K",  # N-dimethyl-lysine -> Lys
+        "DAL": "A",  # D-Alanine
+        "DAR": "R",
+        "DSG": "N",  # D-Asn
+        "DGN": "Q",  # D-Gln
+        "DLY": "K",  # D-Lys
+        "DPN": "F",  # D-Phe
+        "DPR": "P",  # D-Pro
+        "DSN": "S",  # D-Ser
+        "DTH": "T",
+        "DTR": "W",
+        "DTY": "Y",
+        "DVA": "V",
+
+        # Less common but still realistic
+        "SEP": "S",  # Phosphoserine
+        "TPO": "T",  # Phosphothreonine
+        "PTR": "Y",  # Phosphotyrosine
+        "KCX": "K",  # Carboxylated lysine
+        "HIC": "H",  # 4-Methyl-histidine
+        "CME": "C",  # Modified cysteine
+        "OCS": "C",
+        "CSX": "C",
+
+        # Unknown
+        "UNK": "X",
     }
-    upper_code = three_letter_code.upper()
-    one_letter_code = mapping.get(upper_code, 'X')  # X für unbekannt
+    upper_code = three_letter_code.strip().upper()
+    one_letter_code = AA_MAPPING.get(upper_code, 'X')  # X für unbekannt
     return one_letter_code
+
+
+def apply_mutations_ignore(seq, muts):
+    if isinstance(muts, str):
+        muts = [muts]
+    seq_list = list(seq)
+    for m in muts:
+        pos = int(m[1:-1])
+        alt = m[-1]
+        seq_list[pos-1] = alt
+    return "".join(seq_list)
 
 
 def apply_mutations(seq, muts):
